@@ -6,6 +6,7 @@ app.listen(3000, function() {
 	console.log("Listening on port 3000");
 });
 
+var INTERVAL = 1000;
 
 function handler(req, res) {
 	fs.readFile('./index.html', function(err, html) {
@@ -17,10 +18,11 @@ function handler(req, res) {
 			res.write(html);
 			res.end();
 
-			
-
 			io.on('connection', function(socket) {
-				socket.emit('hello', { msg: 'hello world!' });
+				setInterval(function(){
+					var measurement = Math.floor(Math.random() * 100 + 1);
+					socket.emit('measurement', { msg: measurement });
+				}, INTERVAL);
 			});
 		}
 	});

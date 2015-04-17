@@ -5,7 +5,7 @@
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript">
 		var socket = io.connect('http://localhost:3000');
-		socket.on('hello', function(data) {
+		socket.on('measurement', function(data) {
 			console.log(data);
 		});
 	</script>
