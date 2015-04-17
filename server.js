@@ -19,9 +19,11 @@ function handler(req, res) {
 			res.end();
 
 			io.on('connection', function(socket) {
+				var i = 0;
 				setInterval(function() {
 					var measurement = Math.floor(Math.random() * 100 + 1);
-					socket.emit('measurement', { msg: measurement });
+					socket.emit('measurement', { msg: measurement, time: i });
+					i++;
 				}, INTERVAL);
 			});
 		}
