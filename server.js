@@ -6,7 +6,7 @@ app.listen(3000, function() {
 	console.log("Listening on port 3000");
 });
 
-var INTERVAL = 1000;
+var INTERVAL = 250;
 var INTERVAL_ID = 0;
 
 function handler(req, res) {
@@ -26,11 +26,11 @@ function handler(req, res) {
 						socket.emit('measurement', { msg: measurement, time: i });
 						i++;
 				}, INTERVAL);
-			});
 
-			io.on('disconnect', function(socket) {
-				clearInterval(INTERVAL_ID);
-				console.log("Interval ID", INTERVAL_ID);
+				socket.on('disconnect', function(){
+					clearInterval(INTERVAL_ID);
+					console.log("Interval ID", INTERVAL_ID);
+				});
 			});
 		}
 	});

@@ -11,16 +11,54 @@
 	<script type="text/javascript">
 
 		// SOCKET.IO
+
+		var measurements_data = [];
+
 		var socket = io.connect('http://localhost:3000');
 		socket.on('measurement', function(data) {
+
+			measurements_data.push(data);
+
+			if(measurements_data[measurements_data.length-1].time > 20) {
+				measurements_data.shift();
+			}
+
+			console.log(measurements_data.length);
+
 			var svg = document.getElementById('graph');
-			console.log(svg);
-			var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-			console.log(data.time);
-			circle.setAttribute("cx", (80 + data.time * 50));
-			circle.setAttribute("cy", (data.msg * 5));
-			circle.setAttribute("r", "3");
-			svg.appendChild(circle);
+			var existingPolyline = document.getElementById('polyline');
+
+			if(existingPolyline) {
+				svg.removeChild(existingPolyline);
+			}
+			/*if(svg.circle) {
+				svg.removeChild(circle);
+			}*/
+			//console.log(svg);
+			/*var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+			circle.setAttribute("cx", cx);
+			circle.setAttribute("cy", cy);
+			circle.setAttribute("r", "3");*/
+
+			var polyline= document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+
+			var pointsXY = [];
+			
+			for(var i = 0; i < measurements_data.length; i++) {
+				var cx = (30 + (i * 50));
+				var cy = (30 + (measurements_data[i].msg * 5));
+
+				pointsXY.push(cx + "," + cy + " ");
+			}
+
+			polyline.setAttribute("id", "polyline");
+			polyline.setAttribute("points", pointsXY);
+			polyline.setAttribute("fill", "none");
+			polyline.setAttribute("stroke", "red");
+			polyline.setAttribute("stroke-width", "2");
+
+			//svg.appendChild(circle);
+			svg.appendChild(polyline);
 		});
 	</script>
 
@@ -34,13 +72,17 @@
 			var y = 30;
 			for(var i = 0; i < 10; i++) {
 				var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+				//var x_text = document.createElementNS("http://www.w3.org/2000/svg", "text");
 				line.setAttribute("x1", "26");
 				line.setAttribute("y1", y);
 				line.setAttribute("x2", "34");
 				line.setAttribute("y2", y);
 				line.setAttribute("stroke", "black");
 				line.setAttribute("stroke-width", "2");
+				//x_text.setAttribute("stroke", "black");
+				//x_text.setAttribute("stroke-width", "2");
 				svg.appendChild(line);
+				//svg.appendChild(x_text);
 				y += 50;
 			}
 
@@ -67,7 +109,7 @@
 		<line x1="30" y1="30" x2="30" y2="530" stroke="black" stroke-width="2" text="test"/>
 
 		<line x1="30" y1="530" x2="1030" y2="530" stroke="black" stroke-width="2"/>
-		<text id="xlabel" x="485" y="550" fill="black">Time (s)</text>
+		<text id="xlabel" x="485" y="550" fill="black">Time</text>
 	</svg>
 </body>
 </html>
