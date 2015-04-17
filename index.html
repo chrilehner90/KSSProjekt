@@ -2,6 +2,11 @@
 <html>
 <head>
 	<title>Test</title>
+	<style type="text/css">
+		body {
+			font-family: Helvetica, sans-serif;
+		}
+	</style>
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript">
 		var svg = document.getElementById('graph');
@@ -56,11 +61,11 @@
 <body>
 	<h1>Sensor Measurements</h1>
 	<svg id="graph" width="1060" height="560" viewPort="0 0 1060 560" version="1.1" xmlns="http://www.w3.org/2000/svg">
-		<text id="ylabel" x="-265" y="15" fill="black" transform="rotate(270 0,0)">y-Axis</text>
+		<text id="ylabel" x="-265" y="15" fill="black" transform="rotate(270 0,0)">Value</text>
 		<line x1="30" y1="30" x2="30" y2="530" stroke="black" stroke-width="2" text="test"/>
 
 		<line x1="30" y1="530" x2="1030" y2="530" stroke="black" stroke-width="2"/>
-		<text id="xlabel" x="485" y="550" fill="black">x-Axis</text>
+		<text id="xlabel" x="485" y="550" fill="black">Time (s)</text>
 	</svg>
 </body>
 </html>
