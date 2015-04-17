@@ -9,16 +9,18 @@
 	</style>
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript">
-		var svg = document.getElementById('graph');
-		console.log(svg);
 
 		// SOCKET.IO
 		var socket = io.connect('http://localhost:3000');
 		socket.on('measurement', function(data) {
+			var svg = document.getElementById('graph');
+			console.log(svg);
 			var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+			console.log(data.time);
 			circle.setAttribute("cx", (80 + data.time * 50));
 			circle.setAttribute("cy", (data.msg * 5));
 			circle.setAttribute("r", "3");
+			svg.appendChild(circle);
 		});
 	</script>
 
