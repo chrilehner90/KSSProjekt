@@ -23,7 +23,7 @@
 				measurements_data.shift();
 			}
 
-			console.log(measurements_data.length);
+			//console.log(measurements_data.length);
 
 			var svg = document.getElementById('graph');
 			var existingPolyline = document.getElementById('polyline');
@@ -32,7 +32,7 @@
 				svg.removeChild(existingPolyline);
 			}
 
-			var polyline= document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+			var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
 
 			var pointsXY = [];
 			
