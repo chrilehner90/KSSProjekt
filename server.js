@@ -7,6 +7,7 @@ app.listen(3000, function() {
 });
 
 var INTERVAL = 1000;
+var INTERVAL_ID = 0;
 
 function handler(req, res) {
 	fs.readFile('./index.html', function(err, html) {
@@ -20,11 +21,16 @@ function handler(req, res) {
 
 			io.on('connection', function(socket) {
 				var i = 0;
-				setInterval(function() {
-					var measurement = Math.floor(Math.random() * 100 + 1);
-					socket.emit('measurement', { msg: measurement, time: i });
-					i++;
+				INTERVAL_ID = setInterval(function() {
+						var measurement = Math.floor(Math.random() * 100 + 1);
+						socket.emit('measurement', { msg: measurement, time: i });
+						i++;
 				}, INTERVAL);
+			});
+
+			io.on('disconnect', function(socket) {
+				clearInterval(INTERVAL_ID);
+				console.log("Interval ID", INTERVAL_ID);
 			});
 		}
 	});
