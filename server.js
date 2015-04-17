@@ -6,8 +6,31 @@ app.listen(3000, function() {
 	console.log("Listening on port 3000");
 });
 
-var INTERVAL = 250;
-var INTERVAL_ID = 0;
+var INTERVAL = 1000;
+
+// Singleton pattern to have only one interval
+var Interval = (function() {
+	var interval = undefined;
+	var i = 0;
+
+	function createInstance() {
+		var new_interval = setInterval(function() {
+			var measurement = Math.floor(Math.random() * 100 + 1);
+			io.sockets.emit('measurement', { msg: measurement, time: i });
+			i++;
+		}, INTERVAL);
+		return new_interval;
+	}
+
+	return {
+		getInstance: function() {
+			if(!interval) {
+				interval = createInstance();
+			}
+			return interval;
+		}
+	}
+})();
 
 function handler(req, res) {
 	fs.readFile('./index.html', function(err, html) {
@@ -20,14 +43,14 @@ function handler(req, res) {
 			res.end();
 
 			io.on('connection', function(socket) {
-				var i = 0;
-				INTERVAL_ID = setInterval(function() {
-						var measurement = Math.floor(Math.random() * 100 + 1);
-						socket.emit('measurement', { msg: measurement, time: i });
-						i++;
-				}, INTERVAL);
+				INTERVAL_ID = Interval.getInstance();
+
+				if(INTERVAL_ID) {
+					console.log(INTERVAL_ID === Interval.getInstance());
+				}
 
 				socket.on('disconnect', function(){
+					// TODO: clear interval when last client disconnected.
 					clearInterval(INTERVAL_ID);
 					console.log("Interval ID", INTERVAL_ID);
 				});
