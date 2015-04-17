@@ -1,0 +1,23 @@
+{
+  "name": "KSS",
+  "version": "0.0.1",
+  "description": "Repository for the project of Complex Software  at University of Applied Science Salzburg",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrilehner90/KSSProjekt.git"
+  },
+  "author": "Andreas Frank, Fabio Batz, Christian Lehner",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chrilehner90/KSSProjekt/issues"
+  },
+  "homepage": "https://github.com/chrilehner90/KSSProjekt",
+  "dependencies": {
+    "socket.io": "^1.3.5"
+  }
+}
