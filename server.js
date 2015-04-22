@@ -6,7 +6,7 @@ app.listen(3000, function() {
 	console.log("Listening on port 3000");
 });
 
-var INTERVAL = 1000;
+var INTERVAL = 250;
 
 // Singleton pattern to have only one interval
 var Interval = (function() {
