@@ -8,6 +8,24 @@ app.listen(process.env.PORT || 3000, function() {
 
 var INTERVAL = 250;
 
+var average = function(arr) {
+	var sum = 0;
+	for(var i in arr) {
+		sum += arr[i];
+	}
+	return sum / arr.length;
+}
+
+var standardDeviation = function(arr) {
+	var sum = 0;
+	var avg = average(arr);
+	for(var i in arr) {
+		var base = arr[i] - avg;
+		sum += Math.pow(base, 2);
+	}
+	return Math.sqrt(sum/(arr.length - 1));
+}
+
 // Singleton pattern to have only one interval
 var Interval = (function() {
 	var interval = undefined;
@@ -16,7 +34,7 @@ var Interval = (function() {
 	function createInstance() {
 		var new_interval = setInterval(function() {
 			var measurement = Math.floor(Math.random() * 100 + 1);
-			var timestamp = Math.floor(Date.now() / 1000);
+			var timestamp = Date.now();
 			io.sockets.emit('measurement', { msg: measurement, index: i, time: timestamp });
 			i++;
 		}, INTERVAL);
@@ -49,6 +67,12 @@ function handler(req, res) {
 				if(INTERVAL_ID) {
 					console.log(INTERVAL_ID === Interval.getInstance());
 				}
+
+				socket.on('writeFile', function(data) {
+					console.log("data:", data);
+					console.log("avg:", average(data));
+					console.log("std:", standardDeviation(data));
+				});
 
 				socket.on('disconnect', function(){
 					// TODO: clear interval when last client disconnected.
