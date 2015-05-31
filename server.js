@@ -16,7 +16,8 @@ var Interval = (function() {
 	function createInstance() {
 		var new_interval = setInterval(function() {
 			var measurement = Math.floor(Math.random() * 100 + 1);
-			io.sockets.emit('measurement', { msg: measurement, time: i });
+			var timestamp = Math.floor(Date.now() / 1000);
+			io.sockets.emit('measurement', { msg: measurement, index: i, time: timestamp });
 			i++;
 		}, INTERVAL);
 		return new_interval;

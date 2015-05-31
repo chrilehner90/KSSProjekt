@@ -8,14 +8,30 @@
 		}
 	</style>
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" src="https://rawgit.com/eligrey/FileSaver.js/master/FileSaver.js"></script>
+
 	<script type="text/javascript">
 
 		// SOCKET.IO
 
 		var measurements_data = [];
 
+		var firstTimestamp = 0;
+
 		var socket = io.connect('http://localhost:3000');
 		socket.on('measurement', function(data) {
+
+			//console.log(data);
+			if(data.index == 0) {
+				firstTimestamp = data.time;
+			}
+
+			// Time the client received data
+			if(data.time - firstTimestamp >= 5) {
+				console.log("Over 5 Seconds. I should write a file and close now.");
+				// var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
+				// saveAs(blob, "hello world.txt");	
+			}
 
 			measurements_data.push(data);
 
