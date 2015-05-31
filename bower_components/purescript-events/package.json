@@ -1,0 +1,10 @@
+{
+  "name": "purescript-events",
+  "version": "0.1.1",
+  "description": "PureScript types for Events.",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.8.8",
+    "gulp-purescript": "0.0.10"
+  }
+}

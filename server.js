@@ -23,7 +23,8 @@ var standardDeviation = function(arr) {
 		var base = arr[i] - avg;
 		sum += Math.pow(base, 2);
 	}
-	return Math.sqrt(sum/(arr.length - 1));
+	return Math.sqrt((1 / (arr.length - 1) * sum));
+	//return Math.sqrt(sum/(arr.length - 1));
 }
 
 // Singleton pattern to have only one interval
