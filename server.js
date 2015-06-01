@@ -73,6 +73,7 @@ io.on('connection', function(socket) {
 	INTERVAL_ID = Interval.getInstance();
 
 	socket.on('writeFile', function(data) {
+		data.latencies.shift();
 		console.log("data:", data);
 		console.log("avg:", average(data.latencies));
 		console.log("std:", standardDeviation(data.latencies));
