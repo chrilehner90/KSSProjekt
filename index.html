@@ -19,14 +19,19 @@
 		var visualizationTimes = [];
 		var packageCount = 0;
 		var throughput = 0;
+		var sendingFrequencies = [500, 250, 125, 50, 10];
+		var frequencyIndex = 0;
+
+		var maxIterations = 1;
 
 		var firstTimestamp = 0;
 		var firstPackage = true;
 
-		var timeToMeasureMs = 10000; // ms
+		var timeToMeasureMs = 500; // ms
 		var timeToMeasureS = timeToMeasureMs / 1000; // ms
 
 		var socket = io.connect('http://localhost:3000');
+		socket.emit('init', {'frequency': sendingFrequencies[frequencyIndex]});
 		socket.on('measurement', function(data) {
 
 			latencies.push(Date.now() - data.time);
@@ -83,7 +88,7 @@
 				console.log(packageCount);
 				console.log(timeToMeasureS);
 				packageCount = 0;
-				socket.emit('writeFile', {
+				socket.emit('statistics', {
 					"throughput": throughput,
 					"latencies": latencies,
 					"visualizationTimes": visualizationTimes
@@ -91,6 +96,23 @@
 				console.log("throughput", throughput);
 				console.log(visualizationTimes);
 				socket.disconnect();
+				firstPackage = true;
+				if(--maxIterations > 0) {
+					socket.connect();
+					socket.emit('init', {'frequency': sendingFrequencies[frequencyIndex]});
+				}
+				else {
+					frequencyIndex++;
+					if(frequencyIndex < sendingFrequencies.length) {
+						socket.connect();
+						socket.emit('init', {'frequency': sendingFrequencies[frequencyIndex]});
+						maxIterations = 1;
+					}
+					else {
+						socket.connect();
+						socket.emit('writeFile');
+					}
+				}
 			}
 			packageCount++;
 		});

@@ -6,8 +6,9 @@ app.listen(process.env.PORT || 3000, function() {
 	console.log("Listening on port 3000");
 });
 
-var INTERVAL = 50;
+var sendingFrequency;
 var clients = [];
+var output = [];
 
 var average = function(arr) {
 	var sum = 0;
@@ -28,8 +29,6 @@ var standardDeviation = function(arr) {
 	//return Math.sqrt(sum/(arr.length - 1));
 }
 
-var seed = 1;
-
 var pseudoRandom = function(seed) {
 	var x = Math.sin(seed) * 100;
 	x = Math.floor(x);
@@ -47,7 +46,7 @@ var Interval = (function() {
 			seed++;
 			var timestamp = Date.now();
 			io.sockets.emit('measurement', { msg: measurement, time: timestamp });
-		}, INTERVAL);
+		}, sendingFrequency);
 		return new_interval;
 	}
 
@@ -79,16 +78,26 @@ function handler(req, res) {
 
 io.on('connection', function(socket) {
 	console.log("io on connection");
-	clients.push(socket);
-	Interval.getInstance();
+	
+	socket.on('init', function(data) {
+		clients.push(socket);
+		sendingFrequency = data.frequency;
+		console.log(sendingFrequency);
+		Interval.getInstance();
+	});
 
-	socket.on('writeFile', function(data) {
+	socket.on('statistics', function(data) {
 		data.latencies.shift();
-		console.log("avg:", average(data.latencies));
-		console.log("std dev:", standardDeviation(data.latencies));
+		output.push(data);
+		console.log("latency avg:", average(data.latencies));
+		console.log("latency std dev:", standardDeviation(data.latencies));
 		console.log("visualization avg:", average(data.visualizationTimes));
 		console.log("visualization std dev:", standardDeviation(data.visualizationTimes));
-		console.log("received packages / s", data.throughput / (1000 / INTERVAL));
+		console.log("received packages % s", data.throughput / (1000 / sendingFrequency));
+	});
+
+	socket.on('writeFile', function() {
+		console.log("FIN");
 	});
 
 	socket.on('disconnect', function(){
