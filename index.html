@@ -16,37 +16,25 @@
 
 		var measurements_data = [];
 		var latencies = [];
+		var visualizationTimes = [];
 		var packageCount = 0;
 		var throughput = 0;
 
 		var firstTimestamp = 0;
 		var firstPackage = true;
 
-		var timeToMeasureMs = 5000; // ms
+		var timeToMeasureMs = 10000; // ms
 		var timeToMeasureS = timeToMeasureMs / 1000; // ms
 
 		var socket = io.connect('http://localhost:3000');
 		socket.on('measurement', function(data) {
 
 			latencies.push(Date.now() - data.time);
-			packageCount++;
-			console.log("packageCount", packageCount);
 
 			//console.log(data);
 			if(firstPackage) {
 				firstTimestamp = data.time;
 				firstPackage = false;
-			}
-
-			// Time the client received data
-			if(data.time - firstTimestamp >= timeToMeasureMs) {
-				console.log("packageCount", packageCount);
-				console.log("time in S", timeToMeasureS);
-				throughput = packageCount / timeToMeasureS;
-				packageCount = 0;
-				console.log("Over 5 Seconds. I should write a file and close now.");
-				socket.emit('writeFile', {"throughput": throughput, "latencies": latencies});
-				socket.disconnect();
 			}
 
 			measurements_data.push(data);
@@ -55,31 +43,56 @@
 				measurements_data.shift();
 			}
 
-			var svg = document.getElementById('graph');
-			var existingPolyline = document.getElementById('polyline');
+			// begin visualization measurement
+			var beginVisualization = Date.now();
 
-			if(existingPolyline) {
-				svg.removeChild(existingPolyline);
+			for(var j = 0; j < 50; j++){
+				var svg = document.getElementById('graph');
+				var existingPolyline = document.getElementById('polyline' + j);
+
+				if(existingPolyline) {
+					svg.removeChild(existingPolyline);
+				}
+
+				var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+
+				var pointsXY = [];
+				
+				for(var i = 0; i < measurements_data.length; i++) {
+					var cx = (50 + (i * 50));
+					var cy = (30 + (measurements_data[i].msg * 5 + (j * 10)));
+
+					pointsXY.push(cx + "," + cy + " ");
+				}
+
+				polyline.setAttribute("id", "polyline" + j);
+				polyline.setAttribute("points", pointsXY);
+				polyline.setAttribute("fill", "none");
+				polyline.setAttribute("stroke", "red");
+				polyline.setAttribute("stroke-width", "2");
+
+				svg.appendChild(polyline);
 			}
 
-			var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+			visualizationTimes.push(Date.now() - beginVisualization);
+			// end visualization measurement
 
-			var pointsXY = [];
-			
-			for(var i = 0; i < measurements_data.length; i++) {
-				var cx = (50 + (i * 50));
-				var cy = (30 + (measurements_data[i].msg * 5));
-
-				pointsXY.push(cx + "," + cy + " ");
+			// Time the client received data
+			if(data.time - firstTimestamp >= timeToMeasureMs) {
+				throughput = packageCount / timeToMeasureS;
+				console.log(packageCount);
+				console.log(timeToMeasureS);
+				packageCount = 0;
+				socket.emit('writeFile', {
+					"throughput": throughput,
+					"latencies": latencies,
+					"visualizationTimes": visualizationTimes
+				});
+				console.log("throughput", throughput);
+				console.log(visualizationTimes);
+				socket.disconnect();
 			}
-
-			polyline.setAttribute("id", "polyline");
-			polyline.setAttribute("points", pointsXY);
-			polyline.setAttribute("fill", "none");
-			polyline.setAttribute("stroke", "red");
-			polyline.setAttribute("stroke-width", "2");
-
-			svg.appendChild(polyline);
+			packageCount++;
 		});
 	</script>
 
@@ -87,7 +100,6 @@
 		// SVG
 		window.onload = function() {
 			var svg = document.getElementById('graph');
-			console.log(svg);
 
 			// y axis ticks
 			var y = 30;
@@ -125,7 +137,7 @@
 				line.setAttribute("stroke-width", "2");
 				svg.appendChild(line);
 				x += 50;
-			}	
+			}
 		}
 	</script>
 </head>
