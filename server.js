@@ -31,14 +31,12 @@ var standardDeviation = function(arr) {
 // Singleton pattern to have only one interval
 var Interval = (function() {
 	var interval = undefined;
-	var i = 0;
 
 	function createInstance() {
 		var new_interval = setInterval(function() {
 			var measurement = Math.floor(Math.random() * 100 + 1);
 			var timestamp = Date.now();
-			io.sockets.emit('measurement', { msg: measurement, index: i, time: timestamp });
-			i++;
+			io.sockets.emit('measurement', { msg: measurement, time: timestamp });
 		}, INTERVAL);
 		return new_interval;
 	}

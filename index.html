@@ -28,7 +28,7 @@
 		var socket = io.connect('http://localhost:3000');
 		socket.on('measurement', function(data) {
 
-			latencies[data.index] = Date.now() - data.time;
+			latencies.push(Date.now() - data.time);
 			packageCount++;
 			console.log("packageCount", packageCount);
 
