@@ -79,12 +79,8 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('disconnect', function(){
-		clients.pop();
-		if(clients.length === 0) {
-			clearInterval(INTERVAL_ID);
-			Interval.removeInstance();
-			console.log("Last client disconnected.");
-		}
+		var i = clients.indexOf(socket);
+  		clients.splice(i, 1);
 		console.log("disconnected");
 	});
 });
