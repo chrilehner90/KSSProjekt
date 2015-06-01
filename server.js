@@ -124,7 +124,7 @@ io.on('connection', function(socket) {
 				+ accumulatedData[i].stdDevVisualizationTimes + "\n"
 		}
 
-		fs.writeFile('data_1PL.dat', output, function(err) {
+		fs.writeFile('data_100PL.dat', output, function(err) {
   			if(err) throw err;
   			console.log("FIN");
   		});
