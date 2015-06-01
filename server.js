@@ -7,6 +7,7 @@ app.listen(process.env.PORT || 3000, function() {
 });
 
 var INTERVAL = 250;
+var clients = [];
 
 var average = function(arr) {
 	var sum = 0;
@@ -63,6 +64,7 @@ function handler(req, res) {
 			res.end();
 
 			io.on('connection', function(socket) {
+				clients.push(socket);
 				INTERVAL_ID = Interval.getInstance();
 
 				if(INTERVAL_ID) {
@@ -76,9 +78,11 @@ function handler(req, res) {
 				});
 
 				socket.on('disconnect', function(){
-					// TODO: clear interval when last client disconnected.
-					clearInterval(INTERVAL_ID);
-					console.log("Interval ID", INTERVAL_ID);
+					clients.pop();
+					if(clients.length === 0) {
+						clearInterval(INTERVAL_ID);
+						console.log("Last client disconnected.");
+					}
 				});
 			});
 		}
