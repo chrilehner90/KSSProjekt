@@ -16,13 +16,20 @@
 
 		var measurements_data = [];
 		var latencies = [];
+		var packageCount = 0;
+		var throughput = 0;
 
 		var firstTimestamp = 0;
+
+		var timeToMeasureMs = 5000; // ms
+		var timeToMeasureS = timeToMeasureMs / 1000; // ms
 
 		var socket = io.connect('http://localhost:3000');
 		socket.on('measurement', function(data) {
 
 			latencies[data.index] = Date.now() - data.time;
+			packageCount = data.index + 1;
+			console.log("packageCount", packageCount);
 
 			//console.log(data);
 			if(data.index == 0) {
@@ -30,9 +37,14 @@
 			}
 
 			// Time the client received data
-			if(data.time - firstTimestamp >= 5000) {
+			if(data.time - firstTimestamp >= timeToMeasureMs) {
+				console.log("packageCount", packageCount);
+				console.log("time in S", timeToMeasureS);
+				throughput = packageCount / timeToMeasureS;
+				packageCount = 0;
 				console.log("Over 5 Seconds. I should write a file and close now.");
-				socket.emit('writeFile', latencies);
+				socket.emit('writeFile', {"throughput": throughput, "latencies": latencies});
+				socket.disconnect();
 			}
 
 			measurements_data.push(data);

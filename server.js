@@ -71,8 +71,8 @@ function handler(req, res) {
 
 				socket.on('writeFile', function(data) {
 					console.log("data:", data);
-					console.log("avg:", average(data));
-					console.log("std:", standardDeviation(data));
+					console.log("avg:", average(data.latencies));
+					console.log("std:", standardDeviation(data.latencies));
 				});
 
 				socket.on('disconnect', function(){
