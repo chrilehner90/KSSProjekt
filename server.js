@@ -6,7 +6,7 @@ app.listen(process.env.PORT || 3000, function() {
 	console.log("Listening on port 3000");
 });
 
-var INTERVAL = 250;
+var INTERVAL = 50;
 var clients = [];
 
 var average = function(arr) {
@@ -28,13 +28,23 @@ var standardDeviation = function(arr) {
 	//return Math.sqrt(sum/(arr.length - 1));
 }
 
+var seed = 1;
+
+var pseudoRandom = function(seed) {
+	var x = Math.sin(seed) * 100;
+	x = Math.floor(x);
+	return Math.abs(x);
+}
+
+
 // Singleton pattern to have only one interval
 var Interval = (function() {
 	var interval = undefined;
-
 	function createInstance() {
+		var seed = 1;
 		var new_interval = setInterval(function() {
-			var measurement = Math.floor(Math.random() * 100 + 1);
+			var measurement = pseudoRandom(seed);
+			seed++;
 			var timestamp = Date.now();
 			io.sockets.emit('measurement', { msg: measurement, time: timestamp });
 		}, INTERVAL);
@@ -50,6 +60,7 @@ var Interval = (function() {
 		},
 		removeInstance: function() {
 			console.log("removing instance");
+			clearInterval(interval);
 			interval = undefined;
 		}
 	}
@@ -66,22 +77,26 @@ function handler(req, res) {
 	});
 }
 
-
 io.on('connection', function(socket) {
 	console.log("io on connection");
 	clients.push(socket);
-	INTERVAL_ID = Interval.getInstance();
+	Interval.getInstance();
 
 	socket.on('writeFile', function(data) {
 		data.latencies.shift();
-		console.log("data:", data);
 		console.log("avg:", average(data.latencies));
-		console.log("std:", standardDeviation(data.latencies));
+		console.log("std dev:", standardDeviation(data.latencies));
+		console.log("visualization avg:", average(data.visualizationTimes));
+		console.log("visualization std dev:", standardDeviation(data.visualizationTimes));
+		console.log("received packages / s", data.throughput / (1000 / INTERVAL));
 	});
 
 	socket.on('disconnect', function(){
 		var i = clients.indexOf(socket);
   		clients.splice(i, 1);
+  		if(clients.length === 0) {
+  			Interval.removeInstance();
+  		}
 		console.log("disconnected");
 	});
 });
