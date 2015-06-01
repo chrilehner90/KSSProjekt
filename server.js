@@ -45,10 +45,15 @@ var Interval = (function() {
 
 	return {
 		getInstance: function() {
+			console.log(interval);
 			if(!interval) {
 				interval = createInstance();
 			}
 			return interval;
+		},
+		removeInstance: function() {
+			console.log("removing instance");
+			interval = undefined;
 		}
 	}
 })();
@@ -81,6 +86,7 @@ function handler(req, res) {
 					clients.pop();
 					if(clients.length === 0) {
 						clearInterval(INTERVAL_ID);
+						Interval.removeInstance();
 						console.log("Last client disconnected.");
 					}
 				});
