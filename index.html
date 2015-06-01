@@ -20,6 +20,7 @@
 		var throughput = 0;
 
 		var firstTimestamp = 0;
+		var firstPackage = true;
 
 		var timeToMeasureMs = 5000; // ms
 		var timeToMeasureS = timeToMeasureMs / 1000; // ms
@@ -28,12 +29,13 @@
 		socket.on('measurement', function(data) {
 
 			latencies[data.index] = Date.now() - data.time;
-			packageCount = data.index + 1;
+			packageCount++;
 			console.log("packageCount", packageCount);
 
 			//console.log(data);
-			if(data.index == 0) {
+			if(firstPackage) {
 				firstTimestamp = data.time;
+				firstPackage = false;
 			}
 
 			// Time the client received data
