@@ -45,7 +45,6 @@ var Interval = (function() {
 
 	return {
 		getInstance: function() {
-			console.log(interval);
 			if(!interval) {
 				interval = createInstance();
 			}
@@ -62,35 +61,32 @@ function handler(req, res) {
 	fs.readFile('./index.html', function(err, html) {
 		if(err) console.log(err);
 		else {
-			console.log("Client connected");
-
 			res.writeHead(200, {'Content-Type': 'text/html'});
 			res.write(html);
 			res.end();
-
-			io.on('connection', function(socket) {
-				clients.push(socket);
-				INTERVAL_ID = Interval.getInstance();
-
-				if(INTERVAL_ID) {
-					console.log(INTERVAL_ID === Interval.getInstance());
-				}
-
-				socket.on('writeFile', function(data) {
-					console.log("data:", data);
-					console.log("avg:", average(data.latencies));
-					console.log("std:", standardDeviation(data.latencies));
-				});
-
-				socket.on('disconnect', function(){
-					clients.pop();
-					if(clients.length === 0) {
-						clearInterval(INTERVAL_ID);
-						Interval.removeInstance();
-						console.log("Last client disconnected.");
-					}
-				});
-			});
 		}
 	});
 }
+
+
+io.on('connection', function(socket) {
+	console.log("io on connection");
+	clients.push(socket);
+	INTERVAL_ID = Interval.getInstance();
+
+	socket.on('writeFile', function(data) {
+		console.log("data:", data);
+		console.log("avg:", average(data.latencies));
+		console.log("std:", standardDeviation(data.latencies));
+	});
+
+	socket.on('disconnect', function(){
+		clients.pop();
+		if(clients.length === 0) {
+			clearInterval(INTERVAL_ID);
+			Interval.removeInstance();
+			console.log("Last client disconnected.");
+		}
+		console.log("disconnected");
+	});
+});
