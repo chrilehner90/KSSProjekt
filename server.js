@@ -8,7 +8,12 @@ app.listen(process.env.PORT || 3000, function() {
 
 var sendingFrequency;
 var clients = [];
-var output = [];
+var accumulatedData = [];
+var output = "";
+
+var round = function(value) {
+	return Math.round(value * 1000) / 1000;
+}
 
 var average = function(arr) {
 	var sum = 0;
@@ -88,16 +93,40 @@ io.on('connection', function(socket) {
 
 	socket.on('statistics', function(data) {
 		data.latencies.shift();
-		output.push(data);
-		console.log("latency avg:", average(data.latencies));
-		console.log("latency std dev:", standardDeviation(data.latencies));
-		console.log("visualization avg:", average(data.visualizationTimes));
-		console.log("visualization std dev:", standardDeviation(data.visualizationTimes));
-		console.log("received packages % s", data.throughput / (1000 / sendingFrequency));
+
+		var statistics = {
+			"sendingFrequency": sendingFrequency,
+			"throughputInPercent": round(data.throughput / (1000 / sendingFrequency)),
+			"averageLatency": round(average(data.latencies)),
+			"stdDevLatency": round(standardDeviation(data.latencies)),
+			"averagevisualizationTimes": round(average(data.visualizationTimes)),
+			"stdDevVisualizationTimes": round(standardDeviation(data.visualizationTimes))
+		}
+		accumulatedData.push(statistics);
+		// console.log("latency avg:", average(data.latencies));
+		// console.log("latency std dev:", standardDeviation(data.latencies));
+		// console.log("visualization avg:", average(data.visualizationTimes));
+		// console.log("visualization std dev:", standardDeviation(data.visualizationTimes));
+		// console.log("received packages % s", data.throughput / (1000 / sendingFrequency));
 	});
 
 	socket.on('writeFile', function() {
-		console.log("FIN");
+		var output = "";
+		for(var i = 0; i < accumulatedData.length; i++) {
+			output += accumulatedData[i].sendingFrequency + "\t" 
+				+ accumulatedData[i].throughputInPercent + "\t" 
+				+ accumulatedData[i].averageLatency + "\t"
+				+ accumulatedData[i].stdDevLatency + "\t"
+				+ accumulatedData[i].averagevisualizationTimes + "\t"
+				+ accumulatedData[i].stdDevVisualizationTimes + "\n"
+		}
+
+		fs.writeFile('data.dat', output, function(err) {
+  			if(err) throw err;
+  			console.log("FIN");
+  		});
+
+		
 	});
 
 	socket.on('disconnect', function(){

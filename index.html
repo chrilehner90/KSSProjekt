@@ -8,8 +8,6 @@
 		}
 	</style>
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-	<script type="text/javascript" src="https://rawgit.com/eligrey/FileSaver.js/master/FileSaver.js"></script>
-
 	<script type="text/javascript">
 
 		// SOCKET.IO
@@ -19,15 +17,15 @@
 		var visualizationTimes = [];
 		var packageCount = 0;
 		var throughput = 0;
-		var sendingFrequencies = [500, 250, 125, 50, 10];
+		var sendingFrequencies = [500, 250, 125, 50, 10, 5];
 		var frequencyIndex = 0;
 
-		var maxIterations = 1;
+		var maxIterations = 5;
 
 		var firstTimestamp = 0;
 		var firstPackage = true;
 
-		var timeToMeasureMs = 500; // ms
+		var timeToMeasureMs = 2000; // ms
 		var timeToMeasureS = timeToMeasureMs / 1000; // ms
 
 		var socket = io.connect('http://localhost:3000');
@@ -85,28 +83,35 @@
 			// Time the client received data
 			if(data.time - firstTimestamp >= timeToMeasureMs) {
 				throughput = packageCount / timeToMeasureS;
+				console.log(throughput);
 				console.log(packageCount);
 				console.log(timeToMeasureS);
 				packageCount = 0;
-				socket.emit('statistics', {
-					"throughput": throughput,
-					"latencies": latencies,
-					"visualizationTimes": visualizationTimes
-				});
+				
 				console.log("throughput", throughput);
 				console.log(visualizationTimes);
 				socket.disconnect();
 				firstPackage = true;
-				if(--maxIterations > 0) {
+				if(maxIterations-- > 0) {
 					socket.connect();
 					socket.emit('init', {'frequency': sendingFrequencies[frequencyIndex]});
 				}
 				else {
+					socket.emit('statistics', {
+						"throughput": throughput,
+						"latencies": latencies,
+						"visualizationTimes": visualizationTimes
+					});
+
+					throughput = 0;
+					latencies = [];
+					visualizationTimes = [];
+
 					frequencyIndex++;
 					if(frequencyIndex < sendingFrequencies.length) {
 						socket.connect();
 						socket.emit('init', {'frequency': sendingFrequencies[frequencyIndex]});
-						maxIterations = 1;
+						maxIterations = 5;
 					}
 					else {
 						socket.connect();
@@ -114,7 +119,9 @@
 					}
 				}
 			}
-			packageCount++;
+			else {
+				packageCount++;
+			}
 		});
 	</script>
 
