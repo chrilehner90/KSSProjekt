@@ -96,13 +96,15 @@ io.on('connection', function(socket) {
 
 		var statistics = {
 			"sendingFrequency": sendingFrequency,
-			"throughputInPercent": round(data.throughput / (1000 / sendingFrequency)),
+			"MeanthroughputInPercent": round(average(data.throughput)),
+			"SDthroughput": round(standardDeviation(data.throughput)),
 			"averageLatency": round(average(data.latencies)),
 			"stdDevLatency": round(standardDeviation(data.latencies)),
 			"averagevisualizationTimes": round(average(data.visualizationTimes)),
 			"stdDevVisualizationTimes": round(standardDeviation(data.visualizationTimes))
 		}
 		accumulatedData.push(statistics);
+
 		// console.log("latency avg:", average(data.latencies));
 		// console.log("latency std dev:", standardDeviation(data.latencies));
 		// console.log("visualization avg:", average(data.visualizationTimes));
@@ -114,14 +116,15 @@ io.on('connection', function(socket) {
 		var output = "";
 		for(var i = 0; i < accumulatedData.length; i++) {
 			output += accumulatedData[i].sendingFrequency + "\t" 
-				+ accumulatedData[i].throughputInPercent + "\t" 
+				+ accumulatedData[i].MeanthroughputInPercent + "\t" 
+				+ accumulatedData[i].SDthroughput + "\t" 
 				+ accumulatedData[i].averageLatency + "\t"
 				+ accumulatedData[i].stdDevLatency + "\t"
 				+ accumulatedData[i].averagevisualizationTimes + "\t"
 				+ accumulatedData[i].stdDevVisualizationTimes + "\n"
 		}
 
-		fs.writeFile('data.dat', output, function(err) {
+		fs.writeFile('data_100PL.dat', output, function(err) {
   			if(err) throw err;
   			console.log("FIN");
   		});
