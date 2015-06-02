@@ -1,10 +1,9 @@
 set terminal png enhanced
 
-set xlabel "Interval between sending in ms"
+set xlabel "Plotted Polylines"
 set ylabel "Milliseconds" 
 
-set xrange [*:] reverse 
-set yrange[0:100]
+set yrange[0:]
 
 plot \
 file using 1:3:4 with errorlines title "Latency Avg", \
