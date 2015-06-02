@@ -1,5 +1,7 @@
 FILE = main.cpp
 MAIN = main
+CONFIG = config.p
+RESULT = result.png
 
 all: build run
 
@@ -11,7 +13,7 @@ build: $(FILES)
 
 
 plot: 
-	
+	gnuplot $(CONFIG) > $(RESULT)
 
 clean:
 	
