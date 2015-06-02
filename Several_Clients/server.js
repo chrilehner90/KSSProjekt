@@ -6,7 +6,7 @@ app.listen(process.env.PORT || 3000, function() {
 	console.log("Listening on port 3000");
 });
 
-var amount_of_Clients = 10;
+var amount_of_Clients = 3;
 
 var sendingFrequency;
 var clients = [];
@@ -371,7 +371,7 @@ io.on('connection', function(socket) {
 				+ accumulatedData[i].count + "\n"
 		}
 
-			fs.writeFile('data_10_clients.dat', output, function(err) {
+			fs.writeFile('data_test_clients.dat', output, function(err) {
   				if(err) throw err;
   				console.log("FIN");
   			});	
